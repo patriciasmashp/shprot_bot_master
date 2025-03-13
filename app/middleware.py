@@ -1,5 +1,7 @@
 import asyncio
 from typing import Any, Awaitable, Callable, Union
+
+from loguru import logger
 from service import texts
 from service.schemas.Master import Master
 from service.DAO.MasterDAO import MasterDAO
@@ -36,18 +38,22 @@ class AlbumMiddleware(BaseMiddleware):
             del data['_is_last']
 
 
-# class AuthMiddleware(BaseMiddleware):
+class AuthMiddleware(BaseMiddleware):
 
-#     async def __call__(self, handler: Callable[[Message, dict[str, Any]],
-#                                                Awaitable[Any]],
-#                        message: Message, data: dict[str, Any]) -> Any:
-#         if message is not None:
-#             master_id = message.from_user.id
+    async def __call__(self, handler: Callable[[Message, dict[str, Any]],
+                                               Awaitable[Any]],
+                       message: Message, data: dict[str, Any]) -> Any:
+        if message is not None:
+            master_id = message.from_user.id
 
-#         master: Master = await MasterDAO.get_master_by_tg_id(master_id)
-#         if master is None:
-#             await handler(message, data)
-#             return
+        master: Master = await MasterDAO.get_master_by_tg_id(master_id)
+
+        if master is None:
+
+            return
+
+        await handler(message, data)
+
 
 #         if message.text == "Редактировать анкету":
 #             await handler(message, data)

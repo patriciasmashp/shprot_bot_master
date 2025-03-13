@@ -5,6 +5,17 @@ welcome_msg = "Добро пожаловать"
 pls_send_phone = "Отправьте номер телефона"
 
 
+def word_ending(word, num):
+    if num % 100 in {11, 12, 13, 14}:
+        return word + "ов"
+    elif num % 10 in {0, 5, 6, 7, 8, 9}:
+        return word + "ов"
+    elif num % 10 in {2, 3, 4}:
+        return word + "а"
+    elif num % 10 in {1}:
+        return word
+
+
 async def get_text_from_strapi(key: str):
     url = "/bot-text"
     texts = await StrapiApi.get(url)
@@ -58,7 +69,7 @@ async def post_sketch(city: str, master_name: str, master_url, body_part: str,
     return f"""Город: {city}
 Мастер: {master_name} {master_url}  
 Место: {body_part}
-Цена: {price}
+Цена: {price} руб.
 
 {text}
 """
@@ -69,9 +80,9 @@ async def post_photo(city: str, style: str, time: str, master_name: str,
     text = await get_text_from_strapi("post_call_to_app")
     return f"""Город: {city}
 Стиль: {style}
-Время работы: {time}
+Время работы: {time} {word_ending('сеанс', int(time))}
 Мастер: {master_name} {master_url}  
-Цена: {price}
+Цена: {price} руб.
 
 {text}
 """
@@ -81,9 +92,9 @@ async def post_video(city: str, time: str, master_name: str, master_url,
                      price: int):
     text = await get_text_from_strapi("post_call_to_app")
     return f"""Город: {city}
-Время работы: {time}
+Время работы: {time} {word_ending('сеанс', int(time))}
 Мастер: {master_name} {master_url}  
-Цена: {price}
+Цена: {price} руб.
 
 {text}
 """

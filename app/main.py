@@ -1,7 +1,8 @@
 
 import asyncio
 import logging
-from middleware import AlbumMiddleware
+import os
+from middleware import AlbumMiddleware, AuthMiddleware
 from create_bot import bot, dp
 from utils.utils import register_routers
 
@@ -14,12 +15,14 @@ async def main():
 
     register_routers()
     dp.message.middleware(AlbumMiddleware())
-    # dp.message.middleware(AuthMiddleware())
+    
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     console_out = logging.StreamHandler()
+    if os.path.exists("./logs") is False:
+        os.mkdir("./logs")
     file_handler = logging.FileHandler("./logs/logs.log", encoding="utf8")
     formatter = logging.Formatter("\n%(asctime)s - %(levelname)s\n%(message)s")
     file_handler.setFormatter(formatter)

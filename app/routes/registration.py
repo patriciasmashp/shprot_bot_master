@@ -1,3 +1,4 @@
+import re
 from typing import List
 from aiogram.filters import Command
 from aiogram.types import (Message, CallbackQuery, FSInputFile, ContentType as
@@ -101,6 +102,10 @@ async def style_selected(callback: CallbackQuery, state: FSMContext):
 
 @router.message(Register.styles_apply)
 async def set_styles(message: Message, state: FSMContext):
+    if not re.match(r'^\d+(\s+\d+)*$', message.text):
+        await message.answer(
+            "Пожалуйста выберите стили из списка. Пример ввода: 0 1")
+        return
     user_styles = message.text.split(' ')
     styles: List[Style] = await StyleDAO.get_all()
     master_styles = []
@@ -187,7 +192,8 @@ async def about(message: Message, state: FSMContext):
     # await state.set_state(Register.show_anket)
 
     text = await texts.get_text_from_strapi("registration_show_anket")
-    await message.answer(text, reply_markup=RegisterKeyboards.show_anket())
+    await state.set_state(Register.finish)
+    await message.answer(text, reply_markup=RegisterKeyboards.finish())
 
 
 @router.callback_query(F.data == "show_anket")

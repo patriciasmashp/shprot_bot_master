@@ -56,6 +56,7 @@ async def post_files(message: Message,
                      album: list[Message] | None = None):
     data = await state.get_data()
     post_type = data.get("post_type")
+
     if message.video and post_type == "video":
 
         if 15 < message.video.duration < 60:
@@ -71,7 +72,10 @@ async def post_files(message: Message,
         return
 
     if album is None and post_type in ["photo", "sketch"]:
-
+        if message.video:
+            
+            await message.answer("Необходимо отправить изображения, а не видео")
+            return
         buffered_photo = await bufered_photo(message.photo[-1].file_id)
         resized_image = resize_image(buffered_photo, (1080, 1350))
 

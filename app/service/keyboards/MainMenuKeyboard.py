@@ -17,6 +17,7 @@ class MainMenuKeyboard:
             ],
             [
                 KeyboardButton(text="Сообщение разработчикам"),
+                KeyboardButton(text="Баланс"),
             ],
         ]
 
