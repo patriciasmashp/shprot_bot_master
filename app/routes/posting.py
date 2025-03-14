@@ -114,6 +114,9 @@ async def post_files(message: Message,
 
 @router.message(Posting.price)
 async def post_price(message: Message, state: FSMContext):
+    if message.text is None:
+        return
+    
     price = message.text
     await state.update_data({"price": price})
 
@@ -140,6 +143,8 @@ async def post_price(message: Message, state: FSMContext):
 
 @router.message(Posting.sessions)
 async def post_sessions(message: Message, state: FSMContext):
+    if message.text is None:
+        return
     time = message.text
     await state.update_data({"time": time})
 
@@ -160,6 +165,9 @@ async def post_sessions(message: Message, state: FSMContext):
 
 @router.message(Posting.style)
 async def post_style(message: Message, state: FSMContext):
+    if message.text is None:
+        return
+
     style = message.text
     await state.update_data({"style": style})
 
@@ -170,6 +178,9 @@ async def post_style(message: Message, state: FSMContext):
 
 @router.message(Posting.body_part)
 async def post_body_part(message: Message, state: FSMContext):
+    if message.text is None:
+        return
+
     body_part = message.text
     await state.update_data({"body_part": body_part})
 
@@ -180,9 +191,8 @@ async def post_body_part(message: Message, state: FSMContext):
 
 @router.callback_query(Posting.social)
 async def social(callback: CallbackQuery, state: FSMContext):
-    
+
     social = callback.data
-    logger.debug(social)
     await state.update_data({"social": social})
 
     text = await texts.get_text_from_strapi("post_confirm")
