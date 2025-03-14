@@ -143,7 +143,7 @@ async def post_price(message: Message, state: FSMContext):
 
 @router.message(Posting.sessions)
 async def post_sessions(message: Message, state: FSMContext):
-    if message.text is None:
+    if message.text is None or not message.text.isdigit():
         return
     time = message.text
     await state.update_data({"time": time})
