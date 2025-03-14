@@ -24,17 +24,22 @@ from filetype import guess as guess_type
 router = Router(name="menu")
 
 
-@router.message(F.text == "Опубликовать пост")
-async def post_start(message: Message, state: FSMContext):
-    text = await texts.get_text_from_strapi("post_start")
-    await state.set_state(Posting.type_of_post)
-    await message.answer(text, reply_markup=PostingKeyboard.type_of_post())
+@router.callback_query(F.data == "help", Posting.type_of_post)
+async def help(callback: CallbackQuery, state: FSMContext):
+    text = await texts.get_text_from_strapi("post_help")
+    kb = PostingKeyboard.after_help()
+    await state.clear()
+    await callback.message.edit_text(text, reply_markup=kb)
 
 
 @router.callback_query(F.data != "help", Posting.type_of_post)
 async def select_post_type(callback: CallbackQuery, state: FSMContext):
     post_type = callback.data
-
+    master: Master = await MasterDAO.get_master_by_tg_id(callback.from_user.id)
+    
+    if master is None:
+        return
+    
     match post_type:
         case "sketch":
             text = await texts.get_text_from_strapi("post_sketch_first")

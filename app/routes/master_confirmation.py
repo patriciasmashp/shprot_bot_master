@@ -75,6 +75,7 @@ async def reason_refusal(message: Message, state: FSMContext):
 async def moderate_post(callback: CallbackQuery, state: FSMContext):
     _, acepted, document_id, media_ids, social = callback.data.split("|")
     acepted = acepted == "y"
+    master: Master = await MasterDAO.get_master(document_id)
     media_ids = media_ids.split(',')
     media = []
     media_urls = []
@@ -83,11 +84,12 @@ async def moderate_post(callback: CallbackQuery, state: FSMContext):
         media_bytes = S3.get_object(media_id)
         media_type = guess_type(media_bytes).MIME.split('/')[0]
         media.append(media_bytes)
-        media_urls.append(f"https://s3.timeweb.cloud/35761e62-846cee9c-4299-4891-8e39-fc2d6f5b2938/{media_id}")
+        media_urls.append(
+            f"https://s3.timeweb.cloud/35761e62-846cee9c-4299-4891-8e39-fc2d6f5b2938/{media_id}"
+        )
 
     if acepted:
         await MasterDAO.aqure_bonuses(document_id)
-        logger.debug(social)
         if social == "ig":
 
             if media_type == 'image':
@@ -100,10 +102,15 @@ async def moderate_post(callback: CallbackQuery, state: FSMContext):
         else:
             if media_type == 'image':
 
-                await VkApi.post_photo(message=callback.message.text, images=media)
+                await VkApi.post_photo(message=callback.message.text,
+                                       images=media)
             else:
                 await VkApi.post_video(message=callback.message.text,
-                                    video=media[0])
+                                       video=media[0])
 
     await callback.message.answer(
         text="Пост успешно проверен" if acepted else "Пост отклонен")
+
+    await bot.send_message(
+        master.master_id,
+        text="Ваш пост прошел проверку" if acepted else "Ваш пост отклонен")

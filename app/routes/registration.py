@@ -57,10 +57,18 @@ async def start(message: Message, state: FSMContext):
 
 @router.callback_query(F.data == "create_anket")
 async def create_anket(callback: CallbackQuery, state: FSMContext):
+    user: Master = await MasterDAO.get_master_by_tg_id(callback.from_user.id)
+
+    if user:
+        text = await texts.get_text_from_strapi(
+            "registration_already_registered")
+        await callback.message.answer(text)
+        return
     text = await texts.get_text_from_strapi("registration_city")
     paginator = Paginator(CityDAO, field='name', keyboard=PaginateKeyboard)
     kb = await paginator.get_kb()
     await state.set_state(Register.city_list)
+    await callback.message.delete()
     await callback.message.answer_photo(
         FSInputFile(ASSETS_PATH + "/city.jpg"),
         caption=text,
@@ -187,6 +195,9 @@ async def photos(message: Message,
 
 @router.message(Register.about)
 async def about(message: Message, state: FSMContext):
+    if message.text is None:
+        return
+
     await state.update_data({"about_master": message.text})
 
     # await state.set_state(Register.show_anket)
@@ -277,6 +288,6 @@ async def finish_registration(callback: CallbackQuery, state: FSMContext):
             caption="Фото профиля",
             reply_markup=RegisterKeyboards.confirm_master(master.documentId))
     await state.clear()
-    
+
     await callback.message.delete()
     await callback.message.answer("Анкета отправленна на проверку")

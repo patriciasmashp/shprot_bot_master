@@ -5,26 +5,15 @@ from loguru import logger
 
 
 class PostingKeyboard:
+    def after_help():
+        inline_kb = [[
+            InlineKeyboardButton(text="Опубликовать пост",
+                                 callback_data="start_post"),
+        ]]
 
-    # def main_menu():
-    #     kb = [
-    #         [
-    #             KeyboardButton(text="Редактировать анкету"),
-    #         ],
-    #         [
-    #             KeyboardButton(text="Статистика профиля"),
-    #         ],
-    #         [
-    #             KeyboardButton(text="Опубликовать пост"),
-    #         ],
-    #         [
-    #             KeyboardButton(text="Сообщение разработчикам"),
-    #         ],
-    #     ]
-
-    #     greet_kb = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=kb)
-    #     return greet_kb
-
+        greet_kb = InlineKeyboardMarkup(inline_keyboard=inline_kb)
+        return greet_kb
+    
     def show_post():
         inline_kb = [[
             InlineKeyboardButton(text="Показать пост", callback_data="confirm")
